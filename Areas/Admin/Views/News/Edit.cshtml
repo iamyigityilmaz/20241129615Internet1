@@ -1,0 +1,97 @@
+﻿@model HaberPortali2.Models.News
+
+@{
+    ViewData["Title"] = "Haber Düzenle";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container mt-4" style="max-width:900px;">
+
+    <h3 class="fw-bold mb-4">📝 Haber Düzenle</h3>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <form method="post"
+                  enctype="multipart/form-data"
+                  asp-area="Admin"
+                  asp-controller="News"
+                  asp-action="Edit">
+
+                <!-- ID -->
+                <input type="hidden" name="Id" value="@Model.Id" />
+
+                <!-- BAŞLIK -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Haber Başlığı</label>
+                    <input type="text" name="Title" value="@Model.Title" class="form-control"
+                           placeholder="Haber başlığını düzenleyin..." required />
+                </div>
+
+                <!-- KATEGORİ -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Kategori</label>
+                    <select name="CategoryId" class="form-select" required>
+                        @foreach (var c in ViewBag.Categories)
+                        {
+                            <option value="@c.Id" @(c.Id == Model.CategoryId ? "selected" : "")>
+                                @c.Name
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <!-- MEVCUT GÖRSEL -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Mevcut Görsel</label><br />
+
+                    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                    {
+                        <img src="@(Url.Content(Model.ImageUrl))"
+                             class="rounded shadow-sm mb-2"
+                             style="width: 200px; height: auto;" />
+                    }
+                    else
+                    {
+                        <p class="text-muted">Görsel yok</p>
+                    }
+                </div>
+
+                <!-- YENİ GÖRSEL -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Yeni Görsel (Opsiyonel)</label>
+                    <input type="file" name="imageFile" id="imageFile"
+                           class="form-control" accept="image/*" />
+
+                    <img id="previewImage"
+                         class="mt-3 rounded border"
+                         style="width: 200px; display:none;" />
+                </div>
+
+                <!-- İÇERİK -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">İçerik</label>
+                    <textarea name="Content" class="form-control" rows="7">@Model.Content</textarea>
+                </div>
+
+                <!-- !!! YAYIN DURUMU KALDIRILDI !!! -->
+                <!-- BUTONLAR -->
+                <div class="mt-3">
+                    <button class="btn btn-primary px-4">💾 Kaydet</button>
+                    <a href="/Admin/News" class="btn btn-secondary ms-2 px-4">↩ Geri</a>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+    document.getElementById("imageFile").addEventListener("change", function (event) {
+        var img = document.getElementById("previewImage");
+        img.src = URL.createObjectURL(event.target.files[0]);
+        img.style.display = "block";
+    });
+</script>
