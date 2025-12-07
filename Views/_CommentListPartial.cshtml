@@ -1,0 +1,28 @@
+﻿@model IEnumerable<HaberPortali2.Models.Comment>
+
+@if (Model == null || !Model.Any())
+{
+    <div class="alert alert-info">
+        Bu habere henüz yorum yapılmamış. İlk yorumu sen yap!
+    </div>
+}
+else
+{
+    <div class="list-group">
+        @foreach (var c in Model)
+        {
+            var displayName = string.IsNullOrEmpty(c.UserName) ? "Anonim Kullanıcı" : c.UserName;
+
+            <div class="list-group-item">
+
+                <!-- Kullanıcı adı + tarih -->
+                <div class="d-flex justify-content-between">
+                    <strong>@displayName</strong>
+                    <span class="text-muted small">@c.CreatedDate.ToString("dd.MM.yyyy HH:mm")</span>
+                </div>
+
+                <p class="mt-2 mb-0">@c.Text</p>
+            </div>
+        }
+    </div>
+}

@@ -1,0 +1,47 @@
+﻿@model HaberPortali2.Models.Category
+
+@{
+    ViewData["Title"] = "Kategori Ekle";
+}
+
+<div class="container mt-4" style="max-width: 600px;">
+
+    <h2 class="mb-4">Yeni Kategori Ekle</h2>
+
+    <!-- Hata Mesajı -->
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger">
+            @ViewBag.Error
+        </div>
+    }
+
+    <form method="post" action="/Category/Add">
+
+        <!-- Kategori Adı -->
+        <div class="mb-3">
+            <label class="form-label">Kategori Adı</label>
+            <input type="text"
+                   name="Name"
+                   value="@Model?.Name"
+                   class="form-control"
+                   required />
+        </div>
+
+        <!-- Aktif/Pasif Switch -->
+        <div class="form-check form-switch mb-3">
+            <input class="form-check-input"
+                   type="checkbox"
+                   name="IsActive"
+                   @(Model == null || Model.IsActive ? "checked" : "") />
+
+            <label class="form-check-label">Aktif Olsun</label>
+        </div>
+
+        <!-- Butonlar -->
+        <button class="btn btn-success">Kaydet</button>
+        <a href="/Category" class="btn btn-secondary">Geri</a>
+
+    </form>
+
+</div>

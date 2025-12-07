@@ -1,0 +1,56 @@
+﻿@model List<HaberPortali2.Models.News>
+
+@{
+    ViewData["Title"] = "Haberler";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+
+    <h2 class="fw-bold mb-4">📢 Tüm Haberler</h2>
+
+    <div class="row">
+
+        @if (!Model.Any())
+        {
+            <div class="alert alert-info">
+                Yayınlanmış haber bulunmuyor.
+            </div>
+        }
+        else
+        {
+            foreach (var item in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+
+                        <img src="@(item.ImageUrl ?? "https://via.placeholder.com/300x180?text=Haber")"
+                             class="card-img-top"
+                             style="height: 200px; object-fit: cover;" />
+
+                        <div class="card-body">
+                            <h5 class="fw-bold">@item.Title</h5>
+
+                            <p class="text-muted">
+                                @item.CreatedDate.ToString("dd.MM.yyyy") · @item.Category?.Name
+                            </p>
+
+                            <p>
+                                @(item.Content.Length > 120
+                                                        ? item.Content.Substring(0, 120) + "..."
+                                                        : item.Content)
+                    </p>
+
+                            <a href="/News/Detail/@item.Id" class="btn btn-primary btn-sm">
+                                Devamını Oku
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+                }
+        }
+
+    </div>
+
+</div>
