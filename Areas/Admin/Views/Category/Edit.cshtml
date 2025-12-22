@@ -1,0 +1,48 @@
+﻿@model HaberPortali2.Models.Category
+
+@{
+    ViewData["Title"] = "Kategori Düzenle";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container mt-4">
+
+    <h3 class="fw-bold mb-4">Kategori Düzenle</h3>
+
+    <!-- HATA MESAJI (aktif kategori isim çakışması) -->
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger">@ViewBag.Error</div>
+    }
+
+    <form method="post" action="/Admin/Category/Edit">
+
+        <!-- ID gizli -->
+        <input type="hidden" name="Id" value="@Model.Id" />
+
+        <!-- Kategori Adı -->
+        <div class="mb-3">
+            <label class="form-label">Kategori Adı</label>
+            <input type="text"
+                   name="Name"
+                   class="form-control"
+                   value="@Model.Name"
+                   required />
+        </div>
+
+        <!-- Aktif / Pasif -->
+        <div class="mb-3">
+            <label class="form-label">Durum</label>
+            <select name="IsActive" class="form-select">
+                <option value="true" @(Model.IsActive ? "selected" : "")>Aktif</option>
+                <option value="false" @(!Model.IsActive ? "selected" : "")>Pasif</option>
+            </select>
+        </div>
+
+        <!-- Butonlar -->
+        <button class="btn btn-primary">Güncelle</button>
+        <a href="/Admin/Category" class="btn btn-secondary ms-2">Geri</a>
+
+    </form>
+
+</div>

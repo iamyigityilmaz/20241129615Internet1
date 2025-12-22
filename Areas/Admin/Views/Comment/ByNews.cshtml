@@ -1,0 +1,53 @@
+﻿@model List<HaberPortali2.Models.Comment>
+
+@{
+    ViewData["Title"] = "Yorumlar";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h3 class="fw-bold mb-4">
+    💬 Yorumlar – @ViewBag.NewsTitle
+</h3>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        Bu habere henüz yorum yapılmamış.
+    </div>
+}
+else
+{
+    <table class="table table-bordered table-striped align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>Kullanıcı</th>
+                <th>Yorum</th>
+                <th style="width:160px;">Tarih</th>
+                <th style="width:120px;">İşlem</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var c in Model)
+            {
+                <tr>
+                    <td class="fw-bold">@c.UserName</td>
+                    <td>@c.Text</td>
+                    <td>@c.CreatedDate.ToString("dd.MM.yyyy HH:mm")</td>
+                    <td>
+                        <form method="post"
+                              asp-area="Admin"
+                              asp-controller="Comment"
+                              asp-action="Delete">
+                            <input type="hidden" name="id" value="@c.Id" />
+                            <input type="hidden" name="newsId" value="@c.NewsId" />
+                            <button class="btn btn-sm btn-danger"
+                                    onclick="return confirm('Yorumu silmek istiyor musun?')">
+                                Sil
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
