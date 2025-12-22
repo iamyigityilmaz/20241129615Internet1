@@ -1,0 +1,60 @@
+﻿@model List<HaberPortali2.Models.News>
+
+@{
+    ViewData["Title"] = "Son Haberler";
+}
+
+<div class="container mt-4">
+
+    <h2 class="mb-4 fw-bold">Son Haberler</h2>
+
+    <div class="row">
+
+        @if (Model == null || !Model.Any())
+        {
+            <div class="alert alert-info">
+                Henüz haber eklenmemiş.
+            </div>
+        }
+        else
+        {
+            foreach (var item in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+
+                        <img src="@(string.IsNullOrEmpty(item.ImageUrl)
+                                                                                      ? "https://via.placeholder.com/600x300?text=Haber+Resmi"
+                                                                                      : item.ImageUrl)"
+                     class="card-img-top"
+                     style="height:220px; object-fit:cover;" />
+
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold">@item.Title</h5>
+
+                            <p class="text-muted mb-1">
+                                @item.CreatedDate.ToString("dd.MM.yyyy") •
+                                <strong>@item.Category?.Name</strong>
+                            </p>
+
+                    @{
+                                string shortText = item.Content?.Length > 120
+                                ? item.Content.Substring(0, 120) + "..."
+                                : item.Content;
+                            }
+
+                            <p class="card-text">@shortText</p>
+
+                            <a href="/News/Detail/@item.Id" class="btn btn-primary btn-sm">
+                                Devamını Oku
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+            }
+        }
+
+    </div>
+
+</div>
