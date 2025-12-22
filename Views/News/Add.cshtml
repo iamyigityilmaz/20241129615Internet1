@@ -1,0 +1,77 @@
+﻿@model HaberPortali2.Models.News
+
+@{
+    ViewData["Title"] = "Yeni Haber Ekle";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container mt-4" style="max-width: 900px;">
+
+    <h3 class="fw-bold mb-4">Yeni Haber Ekle</h3>
+
+    <form method="post"
+          action="/Admin/News/Add"
+          enctype="multipart/form-data"
+          class="p-4 border rounded shadow-sm bg-white">
+
+        <!-- HABER BAŞLIĞI -->
+        <div class="mb-3">
+            <label class="form-label fw-bold">Haber Başlığı</label>
+            <input type="text" name="Title" class="form-control" required />
+        </div>
+
+        <!-- HABER İÇERİĞİ -->
+        <div class="mb-3">
+            <label class="form-label fw-bold">Haber İçeriği</label>
+            <textarea name="Content" class="form-control" rows="6" required></textarea>
+        </div>
+
+        <!-- KATEGORİ SEÇİMİ -->
+        <div class="mb-3">
+            <label class="form-label fw-bold">Kategori</label>
+            <select name="CategoryId" class="form-select" required>
+                <option value="">Kategori Seç</option>
+
+                @foreach (var cat in ViewBag.Categories)
+                {
+                    <option value="@cat.Id">@cat.Name</option>
+                }
+            </select>
+        </div>
+
+        <!-- GÖRSEL YÜKLEME -->
+        <div class="mb-3">
+            <label class="form-label fw-bold">Görsel Yükle</label>
+            <input type="file" name="imageFile" class="form-control" accept="image/*" onchange="previewImage(event)" />
+
+            <img id="preview" src="#" alt="Önizleme"
+                 style="display:none; margin-top:10px; max-width:200px; border-radius:6px;" />
+        </div>
+
+        <!-- YAYIN DURUMU -->
+        <div class="mb-3">
+            <label class="form-label fw-bold">Yayın Durumu</label>
+            <select name="IsPublished" class="form-select">
+                <option value="true">Yayında</option>
+                <option value="false">Taslak</option>
+            </select>
+        </div>
+
+        <!-- BUTONLAR -->
+        <div class="mt-4">
+            <button class="btn btn-success px-4">Haberi Kaydet</button>
+            <a href="/Admin/News" class="btn btn-secondary ms-2 px-4">Geri</a>
+        </div>
+
+    </form>
+
+</div>
+
+<script>
+    // Resim önizleme
+    function previewImage(event) {
+        var preview = document.getElementById('preview');
+        preview.src = URL.createObjectURL(event.target.files[0]);
+        preview.style.display = 'block';
+    }
+</script>

@@ -1,0 +1,114 @@
+﻿@model HaberPortali2.Models.AppUser
+@using HaberPortali2.Models
+
+@{
+    ViewData["Title"] = "Profilim";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var myNews = ViewBag.MyNews as List<News> ?? new List<News>();
+    var myComments = ViewBag.MyComments as List<Comment> ?? new List<Comment>();
+
+    string roleText;
+    string badgeClass;
+
+    if (User.IsInRole("Admin"))
+    {
+        roleText = "Admin";
+        badgeClass = "bg-danger";
+    }
+    else if (User.IsInRole("Author"))
+    {
+        roleText = "Yazar";
+        badgeClass = "bg-warning text-dark";
+    }
+    else
+    {
+        roleText = "Kullanıcı";
+        badgeClass = "bg-secondary";
+    }
+}
+
+<div class="container mt-4">
+
+    <h3 class="fw-bold mb-4">👤 Profilim</h3>
+
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <p><strong>Ad Soyad:</strong> @Model.FullName</p>
+            <p><strong>Kullanıcı Adı:</strong> @Model.UserName</p>
+            <p><strong>E-Mail:</strong> @Model.Email</p>
+            <p>
+                <strong>Rol:</strong>
+                <span class="badge @badgeClass">
+                    @roleText
+                </span>
+            </p>
+        </div>
+    </div>
+
+    <h4 class="fw-bold mb-3">📰 Yazdığım Haberler</h4>
+
+    @if (!myNews.Any())
+    {
+        <div class="alert alert-secondary">
+            Henüz haber yazmamışsınız.
+        </div>
+    }
+    else
+    {
+        <ul class="list-group mb-4">
+            @foreach (var n in myNews)
+            {
+                <li class="list-group-item d-flex justify-content-between">
+                    <a href="/News/Detail/@n.Id" class="fw-bold text-decoration-none">
+                        @n.Title
+                    </a>
+                    <span class="text-muted small">
+                        @n.CreatedDate.ToString("dd.MM.yyyy")
+                    </span>
+                </li>
+            }
+        </ul>
+    }
+
+    <h4 class="fw-bold mb-3">💬 Yaptığım Yorumlar</h4>
+
+    @if (!myComments.Any())
+    {
+        <div class="alert alert-secondary">
+            Henüz yorum yapmamışsınız.
+        </div>
+    }
+    else
+    {
+        <ul class="list-group">
+            @foreach (var c in myComments)
+            {
+                <li class="list-group-item">
+                    <div class="small text-muted mb-1">
+                        @c.CreatedDate.ToString("dd.MM.yyyy HH:mm")
+                    </div>
+
+                    <div class="mb-2">@c.Text</div>
+
+                    <a href="/News/Detail/@c.NewsId" class="small text-primary me-3">
+                        Habere git
+                    </a>
+
+                    <a href="/User/EditComment/@c.Id" class="small text-warning fw-bold me-3">
+                        Düzenle
+                    </a>
+
+                    <form method="post" action="/User/DeleteComment" class="d-inline">
+                        <input type="hidden" name="id" value="@c.Id" />
+                        <button class="btn btn-sm btn-danger"
+                                onclick="return confirm('Yorumu silmek istiyor musun?')">
+                            Sil
+                        </button>
+                    </form>
+                </li>
+            }
+        </ul>
+    }
+
+</div>

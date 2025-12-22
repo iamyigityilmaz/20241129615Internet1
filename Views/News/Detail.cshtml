@@ -1,0 +1,169 @@
+﻿@model HaberPortali2.Models.News
+@using HaberPortali2.Models
+
+@{
+    ViewData["Title"] = Model.Title;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var comments = ViewBag.Comments as List<Comment> ?? new();
+    var currentUser = User.Identity?.Name;
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+
+            <h2 class="fw-bold mb-3">@Model.Title</h2>
+
+            <p class="text-muted mb-3">
+                @Model.CreatedDate.ToString("dd.MM.yyyy") ·
+                <strong>@Model.Category?.Name</strong> ·
+                <span>Yazar: @Model.CreatedBy</span>
+            </p>
+
+            <img src="@(string.IsNullOrEmpty(Model.ImageUrl)
+                                 ? "https://via.placeholder.com/800x400?text=Haber+Resmi"
+                                 : Model.ImageUrl)"
+                 class="img-fluid rounded mb-4" />
+
+            <p style="font-size:17px; line-height:1.7">@Model.Content</p>
+
+            <hr class="my-4" />
+
+            <h4 class="fw-bold mb-3">Yorumlar</h4>
+
+            <div id="commentList">
+                @foreach (var c in comments)
+                {
+                    <div class="border rounded p-3 mb-3" id="comment-@c.Id">
+                        <div class="fw-bold">@c.UserName</div>
+                        <div class="text-muted small">@c.CreatedDate.ToString("dd.MM.yyyy HH:mm")</div>
+
+                        <div class="mt-2 comment-text">@c.Text</div>
+
+                        @if (User.Identity!.IsAuthenticated && c.UserName == currentUser)
+                        {
+                            <div class="mt-2 action-buttons">
+                                <button class="btn btn-sm btn-warning me-2" onclick="showEdit(@c.Id)">Düzenle</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteComment(@c.Id)">Sil</button>
+                            </div>
+                        }
+
+                        <div class="mt-2 d-none edit-area">
+                            <textarea class="form-control mb-2">@c.Text</textarea>
+                            <button class="btn btn-sm btn-success me-2" onclick="saveEdit(@c.Id)">Kaydet</button>
+                            <button class="btn btn-sm btn-secondary" onclick="cancelEdit(@c.Id)">İptal</button>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <hr class="my-4" />
+
+            @if (User.Identity!.IsAuthenticated)
+            {
+                <h5 class="fw-bold mb-3">Yorum Yaz</h5>
+
+                <form id="commentForm">
+                    <input type="hidden" id="newsId" value="@Model.Id" />
+                    <textarea id="commentText" class="form-control mb-3" rows="4" required></textarea>
+                    <button class="btn btn-primary">Yorumu Gönder</button>
+                </form>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+
+    <script>
+        const currentUser = "@currentUser";
+
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/commentHub")
+            .build();
+
+        connection.on("ReceiveComment", function (id, userName, text, newsId, date, isOwner) {
+            if (newsId != @Model.Id) return;
+
+            let buttons = "";
+            if (isOwner) {
+                buttons = `
+                    <div class="mt-2 action-buttons">
+                        <button class="btn btn-sm btn-warning me-2" onclick="showEdit(${id})">Düzenle</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteComment(${id})">Sil</button>
+                    </div>
+                `;
+            }
+
+            document.getElementById("commentList").insertAdjacentHTML("afterbegin", `
+                <div class="border rounded p-3 mb-3" id="comment-${id}">
+                    <div class="fw-bold">${userName}</div>
+                    <div class="text-muted small">${date}</div>
+                    <div class="mt-2 comment-text">${text}</div>
+                    ${buttons}
+                    <div class="mt-2 d-none edit-area">
+                        <textarea class="form-control mb-2">${text}</textarea>
+                        <button class="btn btn-sm btn-success me-2" onclick="saveEdit(${id})">Kaydet</button>
+                        <button class="btn btn-sm btn-secondary" onclick="cancelEdit(${id})">İptal</button>
+                    </div>
+                </div>
+            `);
+        });
+
+        connection.start();
+
+        document.getElementById("commentForm")?.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            fetch("/News/AddComment", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    newsId: document.getElementById("newsId").value,
+                    text: document.getElementById("commentText").value
+                })
+            });
+
+            document.getElementById("commentText").value = "";
+        });
+
+        function showEdit(id) {
+            document.querySelector(`#comment-${id} .comment-text`).classList.add("d-none");
+            document.querySelector(`#comment-${id} .action-buttons`).classList.add("d-none");
+            document.querySelector(`#comment-${id} .edit-area`).classList.remove("d-none");
+        }
+
+        function cancelEdit(id) {
+            document.querySelector(`#comment-${id} .edit-area`).classList.add("d-none");
+            document.querySelector(`#comment-${id} .comment-text`).classList.remove("d-none");
+            document.querySelector(`#comment-${id} .action-buttons`).classList.remove("d-none");
+        }
+
+        function saveEdit(id) {
+            const textarea = document.querySelector(`#comment-${id} textarea`);
+            const newText = textarea.value;
+
+            fetch("/News/EditComment", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id, text: newText })
+            }).then(() => {
+                document.querySelector(`#comment-${id} .comment-text`).innerText = newText;
+                cancelEdit(id);
+            });
+        }
+
+        function deleteComment(id) {
+            if (!confirm("Yorumu silmek istiyor musun?")) return;
+
+            fetch("/News/DeleteComment", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(id)
+            }).then(() => {
+                document.getElementById(`comment-${id}`)?.remove();
+            });
+        }
+    </script>
+}

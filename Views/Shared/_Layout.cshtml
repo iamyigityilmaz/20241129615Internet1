@@ -1,0 +1,141 @@
+﻿@using HaberPortali2.Data
+@inject AppDbContext _context
+
+@{
+    Layout = null;
+
+    var categories = _context.Categories
+        .Where(c => c.IsActive)
+        .OrderBy(c => c.Id)
+        .ToList();
+
+    bool isAuthenticated = User.Identity != null && User.Identity.IsAuthenticated;
+    bool isAdmin = User.IsInRole("Admin");
+    bool isAuthor = User.IsInRole("Author");
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - Haber Portalı</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+        <div class="container">
+
+            <a class="navbar-brand fw-bold" href="/">Haber Portalı</a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-lg-center">
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Ana Sayfa</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="/News">Haberler</a>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">
+                            Kategoriler
+                        </a>
+                        <ul class="dropdown-menu">
+                            @foreach (var c in categories)
+                            {
+                                <li>
+                                    <a class="dropdown-item" href="/News/Category/@c.Id">
+                                        @c.Name
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    </li>
+
+                    @if (!isAuthenticated)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" href="/Auth/Login">Giriş Yap</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/Auth/Register">Kayıt Ol</a>
+                        </li>
+                    }
+                    else
+                    {
+                        @if (isAdmin)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-warning fw-bold" href="/Admin/Dashboard">
+                                    Admin Paneli
+                                </a>
+                            </li>
+                        }
+
+                        @if (isAdmin || isAuthor)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-success fw-bold" href="/Admin/News/Add">
+                                    Haber Yaz
+                                </a>
+                            </li>
+                        }
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-info fw-bold"
+                               data-bs-toggle="dropdown" href="#">
+                                @User.Identity!.Name
+                            </a>
+
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li class="dropdown-item text-muted small">
+                                    @(isAdmin ? "Admin" : isAuthor ? "Yazar" : "Kullanıcı")
+                                </li>
+
+                                <li><hr class="dropdown-divider" /></li>
+
+                                <li>
+                                    <a class="dropdown-item" href="/User/Profile">
+                                        Profilim
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item text-danger" href="/Auth/Logout">
+                                        Çıkış Yap
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    }
+
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        @RenderBody()
+    </div>
+
+    <footer class="bg-dark text-white text-center py-3 mt-5">
+        <p class="m-0">© @DateTime.Now.Year Haber Portalı</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    @RenderSection("Scripts", required: false)
+
+</body>
+</html>
