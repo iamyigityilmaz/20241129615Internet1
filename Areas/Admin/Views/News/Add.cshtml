@@ -1,0 +1,50 @@
+﻿@model HaberPortali2.Models.News
+
+@{
+    ViewData["Title"] = "Yeni Haber Ekle";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container mt-4" style="max-width: 900px;">
+
+    <h3 class="fw-bold mb-4">📰 Yeni Haber Ekle</h3>
+
+    <form method="post"
+          enctype="multipart/form-data"
+          asp-area="Admin"
+          asp-controller="News"
+          asp-action="Add"
+          class="p-4 border rounded shadow-sm bg-white">
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Haber Başlığı</label>
+            <input type="text" name="Title" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Haber İçeriği</label>
+            <textarea name="Content" class="form-control" rows="6" required></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Kategori</label>
+            <select name="CategoryId" class="form-select" required>
+                <option value="">Kategori Seçin</option>
+                @foreach (var c in ViewBag.Categories)
+                {
+                    <option value="@c.Id">@c.Name</option>
+                }
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Görsel Yükle</label>
+            <input type="file" name="imageFile" class="form-control" accept="image/*" />
+        </div>
+
+        <button class="btn btn-success px-4">Kaydet</button>
+        <a href="/Admin/News" class="btn btn-secondary ms-2 px-4">Geri</a>
+
+    </form>
+
+</div>
