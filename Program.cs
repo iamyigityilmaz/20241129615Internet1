@@ -32,14 +32,14 @@ builder.Services
     })
     .AddGoogle(options =>
     {
-        options.ClientId = "278699633008-upj7bmnip34l2qt7jsssdg4qkafn6osr.apps.googleusercontent.com";
-        options.ClientSecret = "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";
+        options.ClientId = "";
+        options.ClientSecret = "";
         options.CallbackPath = "/signin-google"; 
     })
     .AddFacebook(options =>
     {
-        options.AppId = "1224073656266212";
-        options.AppSecret = "f7b9b7ffb486ea9c1d8171d51483cd56";
+        options.AppId = "";
+        options.AppSecret = "";
         options.CallbackPath = "/signin-facebook"; 
     });
 
@@ -87,3 +87,4 @@ app.MapControllerRoute(
 app.MapHub<CommentHub>("/commentHub");
 
 app.Run();
+
